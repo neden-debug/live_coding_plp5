@@ -186,6 +186,43 @@ class FirstClassPassenger(Passenger):
                 "Chauffeur": "Yes" if self.chauffeur_service else "No"}
 
 
+# ===========================================================================
+# PART 4 - OXANE
+# Booking flow: pick a class, collect flight details, build the ticket
+# ===========================================================================
+TICKET_CLASSES = {
+    "1": EconomyPassenger,
+    "2": BusinessPassenger,
+    "3": FirstClassPassenger,
+}
+
+
+def select_class():
+    print("\nSelect your travel class:")
+    for key, ticket_class in TICKET_CLASSES.items():
+        print(f"  [{key}] {ticket_class.CLASS_NAME:<12} "
+              f"(baggage {ticket_class.BAGGAGE_KG} kg)")
+    return ask("Enter choice (1-3)", menu_validator(TICKET_CLASSES))
+
+
+def collect_flight_details():
+    print("\n-- Flight details --")
+    name = ask("Full name", parse_text)
+    location = ask("Departing from", parse_text)
+    destination = ask("Destination", different_from(location))
+    travel_date = ask("Travel date (YYYY-MM-DD)", parse_date)
+    return {"name": name, "location": location,
+            "destination": destination, "date": travel_date}
+
+
+def build_booking(ticket_class):
+    details = collect_flight_details()
+    print(f"\n-- {ticket_class.CLASS_NAME} options --")
+    for attribute, prompt, validator in ticket_class.extra_fields():
+        details[attribute] = ask(prompt, validator)
+    return ticket_class(**details)
+
+
 # ---------------------------------------------------------------------------
 # Quick test for Part 1 only (runs only when this file is run directly)
 # ---------------------------------------------------------------------------
