@@ -1,6 +1,84 @@
 import random
 import string
-from datetime import date
+from datetime import date, datetime
+
+
+# ===========================================================================
+# PART 3 - HYGUETTE
+# Error handling
+# - ask() is the ONE input loop used everywhere: it rejects empty input and
+#   keeps asking until the validator accepts the answer
+# - Each validator either returns a clean value or raises ValueError with a
+#   message telling the user what went wrong
+# ===========================================================================
+def ask(prompt, validator):
+    while True:
+        raw = input(f"  {prompt}: ").strip()
+        try:
+            if not raw:
+                raise ValueError("This field cannot be empty.")
+            return validator(raw)
+        except ValueError as error:
+            print(f"    x {error}")
+
+
+def parse_text(raw):
+    """Names and cities: letters, spaces, hyphens and apostrophes only."""
+    if not all(ch.isalpha() or ch in " -'" for ch in raw):
+        raise ValueError("Use letters only (spaces, - and ' are allowed).")
+    return " ".join(raw.split()).title()
+
+
+def different_from(origin):
+    """Builds a validator that rejects a destination equal to the origin."""
+    def validator(raw):
+        place = parse_text(raw)
+        if place.lower() == origin.lower():
+            raise ValueError("Destination must be different from departure.")
+        return place
+    return validator
+
+
+def parse_date(raw):
+    try:
+        travel_date = datetime.strptime(raw, "%Y-%m-%d").date()
+    except ValueError:
+        raise ValueError("Use the format YYYY-MM-DD, e.g. 2026-12-20.")
+    if travel_date < date.today():
+        raise ValueError("The travel date cannot be in the past.")
+    return travel_date
+
+
+def parse_yes_no(raw):
+    answer = raw.lower()
+    if answer in ("y", "yes"):
+        return True
+    if answer in ("n", "no"):
+        return False
+    raise ValueError("Please answer y or n.")
+
+
+def parse_code(raw):
+    """Lounge codes and suite numbers: 1-10 letters or digits."""
+    if not raw.isalnum() or len(raw) > 10:
+        raise ValueError("Use 1-10 letters or digits, no spaces or symbols.")
+    return raw.upper()
+
+
+def menu_validator(options):
+    """Accepts a menu number, or the option's name typed out (e.g. 'aisle')."""
+    def validator(raw):
+        if raw in options:
+            return options[raw]
+        for value in options.values():
+            if isinstance(value, str) and value.lower() == raw.lower():
+                return value
+        raise ValueError(f"Choose one of: {', '.join(options)}.")
+    return validator
+
+
+SEATS = {"1": "Window", "2": "Aisle", "3": "Middle"}
+parse_seat = menu_validator(SEATS)
 
 
 class Passenger:
@@ -131,5 +209,17 @@ if __name__ == "__main__":
     print("Economy is a Passenger:", isinstance(economy, Passenger))
     print("Business allowance:", business.get_weight_allowance(), "kg")
     print("Economy allowance:", economy.get_weight_allowance(), "kg")
-    
-    
+
+# Test for Part 3: type WRONG answers first to see the errors
+    print("\n--- Part 3: input validation ---")
+    name = ask("Full name", parse_text)
+    origin = ask("Departing from", parse_text)
+    destination = ask("Destination", different_from(origin))
+    travel_date = ask("Travel date (YYYY-MM-DD)", parse_date)
+    seat = ask("Seat [1] Window [2] Aisle [3] Middle", parse_seat)
+    code = ask("Lounge pass code", parse_code)
+    chauffeur = ask("Chauffeur service? (y/n)", parse_yes_no)
+
+    print("\nAll inputs accepted:")
+    print(f"  {name}, {origin} -> {destination}, {travel_date}, "
+          f"seat {seat}, code {code}, chauffeur {chauffeur}")
