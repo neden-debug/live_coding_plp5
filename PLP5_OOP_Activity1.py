@@ -292,4 +292,4 @@ def main():
             break
 
     print_session_summary(bookings)
-    print("\nThank you for flying with us. Safe travels!")
+    print("\nThank you for flying with us. We wish you safe travels!")
