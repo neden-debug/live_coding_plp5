@@ -260,3 +260,42 @@ if __name__ == "__main__":
     print("\nAll inputs accepted:")
     print(f"  {name}, {origin} -> {destination}, {travel_date}, "
           f"seat {seat}, code {code}, chauffeur {chauffeur}")
+
+# ===========================================================================
+# PART 5 - MUKUNZI
+# Terminal booking workflow, step 3 + putting it all together
+# - main() runs the flow, prints each ticket and offers another booking
+# - At the end, a session summary lists every ticket booked
+# - Ctrl+C exits cleanly instead of showing an error
+# - Also: combined all parts, tested every class, named and submitted files
+# ===========================================================================
+def print_session_summary(bookings):
+    print(f"\n{len(bookings)} ticket(s) booked this session:")
+    for booking in bookings:
+        print(f"  {booking.booking_ref}  {booking.name:<22} "
+              f"{booking.CLASS_NAME:<12} {booking.date}")
+
+def main():
+    print("=" * 40)
+    print("AIRLINE TICKET BOOKING SYSTEM".center(40))
+    print("=" * 40)
+
+    bookings = []
+    while True:
+        ticket_class = select_class()          # Step 1 (Oxane)
+        passenger = build_booking(ticket_class)  # Step 2 (Oxane)
+        bookings.append(passenger)
+        print("\nBooking confirmed!\n")
+        print(passenger.get_passenger_info())    # Step 3: formatted ticket
+        print()
+        if not ask("Book another ticket? (y/n)", parse_yes_no):
+            break
+
+    print_session_summary(bookings)
+    print("\nThank you for flying with us. Safe travels!")
+
+if __name__ == "__main__":
+    try:
+        main()
+    except (KeyboardInterrupt, EOFError):
+        print("\n\nBooking cancelled. Goodbye!")
