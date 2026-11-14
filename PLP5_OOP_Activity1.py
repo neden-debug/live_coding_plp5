@@ -293,3 +293,9 @@ def main():
 
     print_session_summary(bookings)
     print("\nThank you for flying with us. We wish you safe travels!")
+
+if __name__ == "__main__":
+    try:
+        main()
+    except (KeyboardInterrupt, EOFError):
+        print("\n\nBooking cancelled. Goodbye!")
