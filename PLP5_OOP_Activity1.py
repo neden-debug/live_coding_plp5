@@ -288,14 +288,3 @@ def main():
         print("\nBooking confirmed!\n")
         print(passenger.get_passenger_info())    # Step 3: formatted ticket
         print()
-        if not ask("Book another ticket? (y/n)", parse_yes_no):
-            break
-
-    print_session_summary(bookings)
-    print("\nThank you for flying with us. Safe travels!")
-
-if __name__ == "__main__":
-    try:
-        main()
-    except (KeyboardInterrupt, EOFError):
-        print("\n\nBooking cancelled. Goodbye!")
