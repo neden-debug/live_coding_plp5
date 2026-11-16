@@ -4,13 +4,13 @@ from datetime import date, datetime
 
 class Passenger:
     CLASS_NAME = "Standard"
-    BAGGAGE_KG = 20  # default allowance
+    BAGGAGE_KG = 20 
 
     def __init__(self, name, location, destination, date):
         self.name = name
         self.location = location
         self.destination = destination
-        self.date = date  # a datetime.date object
+        self.date = date 
         self.booking_ref = self._new_booking_ref()
 
     @staticmethod
@@ -95,11 +95,11 @@ class FirstClassPassenger(Passenger):
                  suite_number, chauffeur_service):
         super().__init__(name, location, destination, date)
         self.suite_number = suite_number
-        self.chauffeur_service = chauffeur_service  # True / False
+        self.chauffeur_service = chauffeur_service 
 
     @classmethod
     def extra_fields(cls):
-        return [("suite_number", "Suite number", parse_code),
+        return [("suite_number", SUITE_PROMPT, parse_suite),
                 ("chauffeur_service", "Chauffeur service? (yes/no)", parse_yes_no)]
 
     def extra_details(self):
@@ -210,45 +210,6 @@ def build_booking(ticket_class):
     return ticket_class(**details)
 
 
-# ---------------------------------------------------------------------------
-# Quick test for Part 1 only (runs only when this file is run directly)
-# ---------------------------------------------------------------------------
-if __name__ == "__main__":
-    passenger = Passenger("Eden", "Kigali", "Nairobi", date(2026, 12, 20))
-    print(passenger)
-    print("Allowance:", passenger.get_weight_allowance(), "kg")
-    print("Booking reference:", passenger.booking_ref)
-    
-# Test for the inheritance implementation Part 2
-    economy = EconomyPassenger("Divine", "Kigali", "Lagos", date(2026, 12, 20), "Window")
-    business = BusinessPassenger("Divine", "Kigali", "Nairobi", date(2026, 12, 20), "AB12")
-    first = FirstClassPassenger("Divine", "Kigali", "Dubai", date(2026, 12, 20), "S3", True)
-    
-    
-
-    for passenger in (economy, business, first):
-        print(passenger)
-        print()
-
-    print("Economy is a Passenger:", isinstance(economy, Passenger))
-    print("Business allowance:", business.get_weight_allowance(), "kg")
-    print("Economy allowance:", economy.get_weight_allowance(), "kg")
-
-# Test for Part 3: type WRONG answers first to see the errors
-    print("\n--- Part 3: input validation ---")
-    name = ask("Full name", parse_text)
-    origin = ask("Departing from", parse_text)
-    destination = ask("Destination", different_from(origin))
-    travel_date = ask("Travel date (YYYY-MM-DD)", parse_date)
-    seat = ask("Seat [1] Window [2] Aisle [3] Middle", parse_seat)
-    code = ask("Lounge pass code", parse_code)
-    chauffeur = ask("Chauffeur service? (y/n)", parse_yes_no)
-
-    print("\nAll inputs accepted:")
-    print(f"  {name}, {origin} -> {destination}, {travel_date}, "
-          f"seat {seat}, code {code}, chauffeur {chauffeur}")
-
-
 def print_session_summary(bookings):
     print(f"\n{len(bookings)} ticket(s) booked this session:")
     for booking in bookings:
@@ -262,11 +223,11 @@ def main():
 
     bookings = []
     while True:
-        ticket_class = select_class()          # Step 1 (Oxane)
-        passenger = build_booking(ticket_class)  # Step 2 (Oxane)
+        ticket_class = select_class()          
+        passenger = build_booking(ticket_class)  
         bookings.append(passenger)
         print("\nBooking confirmed!\n")
-        print(passenger.get_passenger_info())    # Step 3: formatted ticket
+        print(passenger.get_passenger_info())  
         print()
         if not ask("Book another ticket? (y/n)", parse_yes_no):
             break
