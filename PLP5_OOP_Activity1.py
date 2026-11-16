@@ -2,97 +2,15 @@ import random
 import string
 from datetime import date, datetime
 
-
-# ===========================================================================
-# PART 3 - HYGUETTE
-# Error handling
-# - ask() is the ONE input loop used everywhere: it rejects empty input and
-#   keeps asking until the validator accepts the answer
-# - Each validator either returns a clean value or raises ValueError with a
-#   message telling the user what went wrong
-# ===========================================================================
-def ask(prompt, validator):
-    while True:
-        raw = input(f"  {prompt}: ").strip()
-        try:
-            if not raw:
-                raise ValueError("This field cannot be empty.")
-            return validator(raw)
-        except ValueError as error:
-            print(f"    x {error}")
-
-
-def parse_text(raw):
-    """Names and cities: letters, spaces, hyphens and apostrophes only."""
-    if not all(ch.isalpha() or ch in " -'" for ch in raw):
-        raise ValueError("Use letters only (spaces, - and ' are allowed).")
-    return " ".join(raw.split()).title()
-
-
-def different_from(origin):
-    """Builds a validator that rejects a destination equal to the origin."""
-    def validator(raw):
-        place = parse_text(raw)
-        if place.lower() == origin.lower():
-            raise ValueError("Destination must be different from departure.")
-        return place
-    return validator
-
-
-def parse_date(raw):
-    try:
-        travel_date = datetime.strptime(raw, "%Y-%m-%d").date()
-    except ValueError:
-        raise ValueError("Use the format YYYY-MM-DD, e.g. 2026-12-20.")
-    if travel_date < date.today():
-        raise ValueError("The travel date cannot be in the past.")
-    return travel_date
-
-
-def parse_yes_no(raw):
-    answer = raw.lower()
-    if answer in ("y", "yes"):
-        return True
-    if answer in ("n", "no"):
-        return False
-    raise ValueError("Please answer y or n.")
-
-
-def parse_code(raw):
-    """Lounge codes and suite numbers: 1-10 letters or digits."""
-    if not raw.isalnum() or len(raw) > 10:
-        raise ValueError("Use 1-10 letters or digits, no spaces or symbols.")
-    return raw.upper()
-
-
-def menu_validator(options):
-    """Accepts a menu number, or the option's name typed out (e.g. 'aisle')."""
-    def validator(raw):
-        if raw in options:
-            return options[raw]
-        for value in options.values():
-            if isinstance(value, str) and value.lower() == raw.lower():
-                return value
-        raise ValueError(f"Choose one of: {', '.join(options)}.")
-    return validator
-
-
-SEATS = {"1": "Window", "2": "Aisle", "3": "Middle"}
-parse_seat = menu_validator(SEATS)
-
-SUITES = {"1": "A1", "2": "A2", "3": "B1", "4": "B2"}
-SUITE_PROMPT = "Suite " + " ".join(f"[{k}] {v}" for k, v in SUITES.items())
-parse_suite = menu_validator(SUITES)
-
 class Passenger:
     CLASS_NAME = "Standard"
-    BAGGAGE_KG = 20  # default allowance
+    BAGGAGE_KG = 20 
 
     def __init__(self, name, location, destination, date):
         self.name = name
         self.location = location
         self.destination = destination
-        self.date = date  # a datetime.date object
+        self.date = date 
         self.booking_ref = self._new_booking_ref()
 
     @staticmethod
@@ -177,7 +95,7 @@ class FirstClassPassenger(Passenger):
                  suite_number, chauffeur_service):
         super().__init__(name, location, destination, date)
         self.suite_number = suite_number
-        self.chauffeur_service = chauffeur_service  # True / False
+        self.chauffeur_service = chauffeur_service 
 
     @classmethod
     def extra_fields(cls):
@@ -189,10 +107,76 @@ class FirstClassPassenger(Passenger):
                 "Chauffeur": "Yes" if self.chauffeur_service else "No"}
 
 
-# ===========================================================================
-# PART 4 - OXANE
-# Booking flow: pick a class, collect flight details, build the ticket
-# ===========================================================================
+def ask(prompt, validator):
+    while True:
+        raw = input(f"  {prompt}: ").strip()
+        try:
+            if not raw:
+                raise ValueError("This field cannot be empty.")
+            return validator(raw)
+        except ValueError as error:
+            print(f"    x {error}")
+
+
+def parse_text(raw):
+    """Names and cities: letters, spaces, hyphens and apostrophes only."""
+    if not all(ch.isalpha() or ch in " -'" for ch in raw):
+        raise ValueError("Use letters only (spaces, - and ' are allowed).")
+    return " ".join(raw.split()).title()
+
+
+def different_from(origin):
+    """Builds a validator that rejects a destination equal to the origin."""
+    def validator(raw):
+        place = parse_text(raw)
+        if place.lower() == origin.lower():
+            raise ValueError("Destination must be different from departure.")
+        return place
+    return validator
+
+
+def parse_date(raw):
+    try:
+        travel_date = datetime.strptime(raw, "%Y-%m-%d").date()
+    except ValueError:
+        raise ValueError("Use the format YYYY-MM-DD, e.g. 2026-12-20.")
+    if travel_date < date.today():
+        raise ValueError("The travel date cannot be in the past.")
+    return travel_date
+
+
+def parse_yes_no(raw):
+    answer = raw.lower()
+    if answer in ("y", "yes"):
+        return True
+    if answer in ("n", "no"):
+        return False
+    raise ValueError("Please answer y or n.")
+
+
+def parse_code(raw):
+    """Lounge codes and suite numbers: 1-10 letters or digits."""
+    if not raw.isalnum() or len(raw) > 10:
+        raise ValueError("Use 1-10 letters or digits, no spaces or symbols.")
+    return raw.upper()
+
+
+def menu_validator(options):
+    """Accepts a menu number, or the option's name typed out (e.g. 'aisle')."""
+    def validator(raw):
+        if raw in options:
+            return options[raw]
+        for value in options.values():
+            if isinstance(value, str) and value.lower() == raw.lower():
+                return value
+        raise ValueError(f"Choose one of: {', '.join(options)}.")
+    return validator
+
+
+SEATS = {"1": "Window", "2": "Aisle", "3": "Middle"}
+parse_seat = menu_validator(SEATS)
+
+
 TICKET_CLASSES = {
     "1": EconomyPassenger,
     "2": BusinessPassenger,
@@ -226,52 +210,6 @@ def build_booking(ticket_class):
     return ticket_class(**details)
 
 
-# ---------------------------------------------------------------------------
-# Quick test for Part 1 only (runs only when this file is run directly)
-# ---------------------------------------------------------------------------
-if __name__ == "__main__":
-    passenger = Passenger("Eden", "Kigali", "Nairobi", date(2026, 12, 20))
-    print(passenger)
-    print("Allowance:", passenger.get_weight_allowance(), "kg")
-    print("Booking reference:", passenger.booking_ref)
-    
-# Test for the inheritance implementation Part 2
-    economy = EconomyPassenger("Divine", "Kigali", "Lagos", date(2026, 12, 20), "Window")
-    business = BusinessPassenger("Divine", "Kigali", "Nairobi", date(2026, 12, 20), "AB12")
-    first = FirstClassPassenger("Divine", "Kigali", "Dubai", date(2026, 12, 20), "S3", True)
-    
-    
-
-    for passenger in (economy, business, first):
-        print(passenger)
-        print()
-
-    print("Economy is a Passenger:", isinstance(economy, Passenger))
-    print("Business allowance:", business.get_weight_allowance(), "kg")
-    print("Economy allowance:", economy.get_weight_allowance(), "kg")
-
-# Test for Part 3: type WRONG answers first to see the errors
-    print("\n--- Part 3: input validation ---")
-    name = ask("Full name", parse_text)
-    origin = ask("Departing from", parse_text)
-    destination = ask("Destination", different_from(origin))
-    travel_date = ask("Travel date (YYYY-MM-DD)", parse_date)
-    seat = ask("Seat [1] Window [2] Aisle [3] Middle", parse_seat)
-    code = ask("Lounge pass code", parse_code)
-    chauffeur = ask("Chauffeur service? (y/n)", parse_yes_no)
-
-    print("\nAll inputs accepted:")
-    print(f"  {name}, {origin} -> {destination}, {travel_date}, "
-          f"seat {seat}, code {code}, chauffeur {chauffeur}")
-
-# ===========================================================================
-# PART 5 - MUKUNZI
-# Terminal booking workflow, step 3 + putting it all together
-# - main() runs the flow, prints each ticket and offers another booking
-# - At the end, a session summary lists every ticket booked
-# - Ctrl+C exits cleanly instead of showing an error
-# - Also: combined all parts, tested every class, named and submitted files
-# ===========================================================================
 def print_session_summary(bookings):
     print(f"\n{len(bookings)} ticket(s) booked this session:")
     for booking in bookings:
@@ -285,11 +223,11 @@ def main():
 
     bookings = []
     while True:
-        ticket_class = select_class()          # Step 1 (Oxane)
-        passenger = build_booking(ticket_class)  # Step 2 (Oxane)
+        ticket_class = select_class()          
+        passenger = build_booking(ticket_class)  
         bookings.append(passenger)
         print("\nBooking confirmed!\n")
-        print(passenger.get_passenger_info())    # Step 3: formatted ticket
+        print(passenger.get_passenger_info())  
         print()
         if not ask("Book another ticket? (y/n)", parse_yes_no):
             break
