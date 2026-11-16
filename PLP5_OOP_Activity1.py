@@ -80,6 +80,9 @@ def menu_validator(options):
 SEATS = {"1": "Window", "2": "Aisle", "3": "Middle"}
 parse_seat = menu_validator(SEATS)
 
+SUITES = {"1": "A1", "2": "A2", "3": "B1", "4": "B2"}
+SUITE_PROMPT = "Suite " + " ".join(f"[{k}] {v}" for k, v in SUITES.items())
+parse_suite = menu_validator(SUITES)
 
 class Passenger:
     CLASS_NAME = "Standard"
@@ -178,7 +181,7 @@ class FirstClassPassenger(Passenger):
 
     @classmethod
     def extra_fields(cls):
-        return [("suite_number", "Suite number", parse_code),
+        return [("suite_number", SUITE_PROMPT, parse_suite),
                 ("chauffeur_service", "Chauffeur service? (yes/no)", parse_yes_no)]
 
     def extra_details(self):
